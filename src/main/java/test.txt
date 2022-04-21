@@ -1,6 +1,8 @@
-Ivanov 1000 3
-Semenov 10000 1
-Nikolaev 1000 3
-Andreev 10000 3
+Ivanov 100 3
+Peskov 10000 1
+Alehin 10000 1
+Ilin 1000 1
+Nikolaev 100 3
+Andreev 100 3
 Petrov 3000 2
 Antonov 8000 2
