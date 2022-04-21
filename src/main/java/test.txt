@@ -1,0 +1,6 @@
+Ivanov 1000 3
+Semenov 10000 1
+Nikolaev 1000 3
+Andreev 10000 3
+Petrov 3000 2
+Antonov 8000 2
