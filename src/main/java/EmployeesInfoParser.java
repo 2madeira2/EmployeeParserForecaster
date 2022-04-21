@@ -22,7 +22,7 @@ public class EmployeesInfoParser {
         }
     }
 
-    private static void outputAllGoodEmployeesTransfersBetweenDepartments(String inputPath, String outputPath) {
+    public static void outputAllGoodEmployeesTransfersBetweenDepartments(String inputPath, String outputPath) {
         try {
             List<String> lines = Files.readAllLines(Paths.get(inputPath));
             Map<String, List<String>> employeesGroupingByDepartment = getEmployeesGroupingByDepartment(lines);
@@ -50,20 +50,30 @@ public class EmployeesInfoParser {
     }
 
     private static Map<String, List<String>> getEmployeesGroupingByDepartment(List<String> list) {
-        return list.stream().map(s -> s.split(" ")).collect(Collectors.groupingBy(s -> s[2], Collectors.mapping(s -> s[0] + " " + s[1], Collectors.toList())));
+        return list.stream()
+                   .map(s -> s.split(" "))
+                   .collect(Collectors.groupingBy(s -> s[2], Collectors.mapping(s -> s[0] + " " + s[1], Collectors.toList())));
     }
 
     private static Map<String, Double> getAverageSalaryByDepartments(List<String> list) {
-        return list.stream().map(s -> s.split(" ")).collect(Collectors.groupingBy(s -> s[2], Collectors.averagingInt(s -> Integer.parseInt(s[1]))));
+        return list.stream()
+                   .map(s -> s.split(" "))
+                   .collect(Collectors.groupingBy(s -> s[2], Collectors.averagingInt(s -> Integer.parseInt(s[1]))));
     }
 
     private static Double getAverageSalaryByDepartment(List<String> list) {
         if (list.isEmpty()) return 0d;
-        return list.stream().mapToInt(s -> Integer.parseInt(s.split(" ")[1])).average().getAsDouble();
+        return list.stream()
+                   .mapToInt(s -> Integer.parseInt(s.split(" ")[1]))
+                   .average()
+                   .getAsDouble();
     }
 
     private static List<String> getDepartmentsId(List<String> list) {
-        return list.stream().map(s -> s.split(" ")[2]).distinct().collect(Collectors.toList());
+        return list.stream()
+                   .map(s -> s.split(" ")[2])
+                   .distinct()
+                   .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {
