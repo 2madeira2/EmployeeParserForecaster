@@ -1,3 +1,5 @@
+import models.Employee;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,75 +11,87 @@ import java.util.stream.Collectors;
 
 public class EmployeesInfoParser {
 
-    public static void parseAndPrintToConsoleEmployeesInfo(String path) {
-        try {
+    public static void parseAndPrintToConsoleEmployeesInfo(String path) throws IOException {
             List<String> lines = Files.readAllLines(Paths.get(path));
-            Map<String, List<String>> employeesGroupingByDepartment = getEmployeesGroupingByDepartment(lines);
-            Map<String, Double> averageSalaryByDepartment = getAverageSalaryByDepartments(lines);
-            for (Map.Entry<String, Double> e : averageSalaryByDepartment.entrySet()) {
-                System.out.println(e.getKey() + " department. Average salary: " + e.getValue() + "\n" + employeesGroupingByDepartment.get(e.getKey()).toString().replaceAll("[\\[\\]]", ""));
+            Map<Integer, List<Employee>> employeesGroupingByDepartment = getEmployeesGroupingByDepartment(lines);
+            for(Map.Entry<Integer, List<Employee>> entry : employeesGroupingByDepartment.entrySet()) {
+                int sum = 0;
+                for(Employee employee : entry.getValue()) {
+                    sum += employee.getSalary();
+                }
+                System.out.println("Для отдела " + entry.getKey() + " средняя зп: " + sum / entry.getValue().size());
+                System.out.println(entry.getValue().toString().replaceAll("[\\[\\]]", ""));
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        }
+
+    public static void outputInFileBenefitEmployeesTransfersBetweenDepartments(String inputPath, String outputPath) throws IOException {
+        try(FileWriter f = new FileWriter(outputPath)) {
+            f.write(generateBenefitEmployeesTransfersBetweenDepartments(inputPath));
         }
     }
 
-    public static void outputAllGoodEmployeesTransfersBetweenDepartments(String inputPath, String outputPath) {
-        try {
-            List<String> lines = Files.readAllLines(Paths.get(inputPath));
-            Map<String, List<String>> employeesGroupingByDepartment = getEmployeesGroupingByDepartment(lines);
-            for (Map.Entry<String, List<String>> e : employeesGroupingByDepartment.entrySet()) {
-                for (String worker : e.getValue()) {
-                    for (String departmentId : getDepartmentsId(lines)) {
-                        if(!departmentId.equals(e.getKey())) {
-                            List<String> listWithAddingEmployee = new ArrayList<>(employeesGroupingByDepartment.get(departmentId));
-                            List<String> listWithRemovingEmployee = new ArrayList<>(employeesGroupingByDepartment.get(e.getKey()));
-                            listWithRemovingEmployee.remove(worker);
-                            listWithAddingEmployee.add(worker);
-                            if (getAverageSalaryByDepartment(employeesGroupingByDepartment.get(departmentId)) < getAverageSalaryByDepartment(listWithAddingEmployee)
-                                    && getAverageSalaryByDepartment(employeesGroupingByDepartment.get(e.getKey())) < getAverageSalaryByDepartment(listWithRemovingEmployee)) {
-                                try (FileWriter f = new FileWriter(outputPath, true)) {
-                                    f.write(worker + " from " + e.getKey() + " department to " + departmentId + " department - is Good Thing\n");
+    public static String generateBenefitEmployeesTransfersBetweenDepartments(String inputPath) throws IOException {
+
+                StringBuilder result = new StringBuilder();
+                List<String> lines = Files.readAllLines(Paths.get(inputPath));
+                Map<Integer, List<Employee>> employeesGroupingByDepartment = getEmployeesGroupingByDepartment(lines);
+                for (Map.Entry<Integer, List<Employee>> entry : employeesGroupingByDepartment.entrySet()) {
+                    List<Employee> currentList = entry.getValue();
+                    currentList.sort((e1, e2) -> (int) (e1.getSalary() - e2.getSalary()));
+                    for (Map.Entry<Integer, List<Employee>> innerEntry : employeesGroupingByDepartment.entrySet()) {
+                        List<Employee> addedEmployees = new ArrayList<>();
+                        if (!innerEntry.getKey().equals(entry.getKey())) {
+                            List<Employee> targetList = innerEntry.getValue();
+                            Double averageSalaryInCurrentTargetDep = getAverageSalaryByDepartment(targetList);
+                            List<Employee> copyOfCurrentList = new ArrayList<>(currentList);
+                            for (int i = 0; i < currentList.size() - 1; i++) {
+                                for (int j = i + 1; j < currentList.size(); j++) {
+
+                                }
+                                //targetList.add(employee);
+                               // copyOfCurrentList.remove(employee);
+                                if (getAverageSalaryByDepartment(copyOfCurrentList) > getAverageSalaryByDepartment(currentList)
+                                        && getAverageSalaryByDepartment(targetList) > averageSalaryInCurrentTargetDep) {
+                                 //   addedEmployees.add(employee);
                                 }
                             }
                         }
+                        if (!addedEmployees.isEmpty()) {
+                              result.append("При переходе следующих сотрудников из отдела ")
+                                      .append(entry.getKey())
+                                      .append(" в отдел ")
+                                      .append(innerEntry.getKey())
+                                      .append(" средняя зарплата в обоих отделах увеличится:\n")
+                                      .append(addedEmployees.toString().replaceAll("[\\[\\]]", ""))
+                                      .append("\n")
+                                      .append("------------------------------------------------------------------------\n");
+                        }
                     }
                 }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+                return result.toString();
     }
 
-    private static Map<String, List<String>> getEmployeesGroupingByDepartment(List<String> list) {
+    private static Map<Integer, List<Employee>> getEmployeesGroupingByDepartment(List<String> list) {
         return list.stream()
                    .map(s -> s.split(" "))
-                   .collect(Collectors.groupingBy(s -> s[2], Collectors.mapping(s -> s[0] + " " + s[1], Collectors.toList())));
+                   .map(s -> new Employee(s[0], Long.parseLong(s[1]), Integer.parseInt(s[2])))
+                   .collect(Collectors.groupingBy(Employee::getDepartmentId));
     }
 
-    private static Map<String, Double> getAverageSalaryByDepartments(List<String> list) {
-        return list.stream()
-                   .map(s -> s.split(" "))
-                   .collect(Collectors.groupingBy(s -> s[2], Collectors.averagingInt(s -> Integer.parseInt(s[1]))));
-    }
-
-    private static Double getAverageSalaryByDepartment(List<String> list) {
+    private static Double getAverageSalaryByDepartment(List<Employee> list) {
         if (list.isEmpty()) return 0d;
         return list.stream()
-                   .mapToInt(s -> Integer.parseInt(s.split(" ")[1]))
-                   .average()
-                   .getAsDouble();
-    }
-
-    private static List<String> getDepartmentsId(List<String> list) {
-        return list.stream()
-                   .map(s -> s.split(" ")[2])
-                   .distinct()
-                   .collect(Collectors.toList());
+                .mapToLong(Employee::getSalary)
+                .average()
+                .getAsDouble();
     }
 
     public static void main(String[] args) {
-        parseAndPrintToConsoleEmployeesInfo(args[0]);
-        outputAllGoodEmployeesTransfersBetweenDepartments(args[0], args[1]);
+        try {
+            parseAndPrintToConsoleEmployeesInfo(args[0]);
+           // outputInFileBenefitEmployeesTransfersBetweenDepartments(args[0], args[1]);
+        } catch (IOException e) {
+            throw new RuntimeException("Неверно задан путь к файлам", e.getCause());
+        }
     }
 }
