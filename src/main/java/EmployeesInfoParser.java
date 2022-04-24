@@ -32,43 +32,67 @@ public class EmployeesInfoParser {
 
     public static String generateBenefitEmployeesTransfersBetweenDepartments(String inputPath) throws IOException {
 
-                StringBuilder result = new StringBuilder();
-                List<String> lines = Files.readAllLines(Paths.get(inputPath));
-                Map<Integer, List<Employee>> employeesGroupingByDepartment = getEmployeesGroupingByDepartment(lines);
-                for (Map.Entry<Integer, List<Employee>> entry : employeesGroupingByDepartment.entrySet()) {
-                    List<Employee> currentList = entry.getValue();
-                    currentList.sort((e1, e2) -> (int) (e1.getSalary() - e2.getSalary()));
-                    for (Map.Entry<Integer, List<Employee>> innerEntry : employeesGroupingByDepartment.entrySet()) {
-                        List<Employee> addedEmployees = new ArrayList<>();
-                        if (!innerEntry.getKey().equals(entry.getKey())) {
-                            List<Employee> targetList = innerEntry.getValue();
-                            Double averageSalaryInCurrentTargetDep = getAverageSalaryByDepartment(targetList);
-                            List<Employee> copyOfCurrentList = new ArrayList<>(currentList);
-                            for (int i = 0; i < currentList.size() - 1; i++) {
-                                for (int j = i + 1; j < currentList.size(); j++) {
+        StringBuilder result = new StringBuilder();
+        List<String> lines = Files.readAllLines(Paths.get(inputPath));
+        Map<Integer, List<Employee>> employeesGroupingByDepartment = getEmployeesGroupingByDepartment(lines);
+        for (Map.Entry<Integer, List<Employee>> entry : employeesGroupingByDepartment.entrySet()) {
+            List<List<Employee>> allVariantsForCurrentDepartment = getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(getAverageSalaryByDepartment(entry.getValue()), 0, entry.getValue(),
+                    new ArrayList<>());
 
-                                }
-                                //targetList.add(employee);
-                               // copyOfCurrentList.remove(employee);
-                                if (getAverageSalaryByDepartment(copyOfCurrentList) > getAverageSalaryByDepartment(currentList)
-                                        && getAverageSalaryByDepartment(targetList) > averageSalaryInCurrentTargetDep) {
-                                 //   addedEmployees.add(employee);
-                                }
-                            }
-                        }
-                        if (!addedEmployees.isEmpty()) {
-                              result.append("При переходе следующих сотрудников из отдела ")
-                                      .append(entry.getKey())
-                                      .append(" в отдел ")
-                                      .append(innerEntry.getKey())
-                                      .append(" средняя зарплата в обоих отделах увеличится:\n")
-                                      .append(addedEmployees.toString().replaceAll("[\\[\\]]", ""))
-                                      .append("\n")
-                                      .append("------------------------------------------------------------------------\n");
-                        }
+            for(Map.Entry<Integer, List<Employee>> innerEntry : employeesGroupingByDepartment.entrySet()) {
+                List<Employee> currentInnerList = innerEntry.getValue();
+                for(List<Employee> list : allVariantsForCurrentDepartment) {
+                    List<Employee> currentInnerListWithAddedEmployees = new ArrayList<>(currentInnerList);
+                    currentInnerListWithAddedEmployees.addAll(list);
+                    if (getAverageSalaryByDepartment(currentInnerList).compareTo(getAverageSalaryByDepartment(currentInnerListWithAddedEmployees)) < 0) {
+                        List<Employee> entryListWithRemovingEmployee = new ArrayList<>(entry.getValue());
+                        entryListWithRemovingEmployee.removeAll(list);
+                        result.append("Из отдела ")
+                                .append(entry.getKey())
+                                .append(" в отдел ")
+                                .append(innerEntry.getKey())
+                                .append(" с увеличением средней зп в обоих отделах возможен перевод следующих сотрудников: \n")
+                                .append(list.toString().replaceAll("[\\[\\]]", ""))
+                                .append("\n")
+                                .append("Зп до перевода в ")
+                                .append(entry.getKey())
+                                .append(" отделе: ")
+                                .append(getAverageSalaryByDepartment(entry.getValue()))
+                                .append(". Зп до перевода в ")
+                                .append(innerEntry.getKey())
+                                .append(" отделе: ")
+                                .append(getAverageSalaryByDepartment(currentInnerList))
+                                .append(". \nЗп после перевода в ")
+                                .append(entry.getKey())
+                                .append(" отделе: ")
+                                .append(getAverageSalaryByDepartment(entryListWithRemovingEmployee))
+                                .append(". Зп после перевода в ")
+                                .append(innerEntry.getKey())
+                                .append(" отделе: ")
+                                .append(getAverageSalaryByDepartment(currentInnerListWithAddedEmployees))
+                                .append("\n\n");
                     }
                 }
-                return result.toString();
+            }
+        }
+        return result.toString();
+    }
+
+    private static List<List<Employee>> getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(Double averageSalaryInDepAtThisMoment,
+                                                                                                           int startingPosition,
+                                                                                                           List<Employee> sourceEmployeesListInDep,
+                                                                                                           List<Employee> list){
+        List<List<Employee>> allEmployeesCombinationsForRemovingFromDepartment = new ArrayList<>();
+        for (int i = startingPosition; i < sourceEmployeesListInDep.size(); i++) {
+            List<Employee> currentList = new ArrayList<>(list);
+            currentList.add(sourceEmployeesListInDep.get(i));
+            if (getAverageSalaryByDepartment(currentList).compareTo(averageSalaryInDepAtThisMoment) < 0) {
+                allEmployeesCombinationsForRemovingFromDepartment.add(currentList);
+            }
+            allEmployeesCombinationsForRemovingFromDepartment.addAll(getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(averageSalaryInDepAtThisMoment, i + 1,
+                                                                                                                                        sourceEmployeesListInDep, currentList));
+        }
+        return allEmployeesCombinationsForRemovingFromDepartment;
     }
 
     private static Map<Integer, List<Employee>> getEmployeesGroupingByDepartment(List<String> list) {
@@ -89,7 +113,7 @@ public class EmployeesInfoParser {
     public static void main(String[] args) {
         try {
             parseAndPrintToConsoleEmployeesInfo(args[0]);
-           // outputInFileBenefitEmployeesTransfersBetweenDepartments(args[0], args[1]);
+            outputInFileBenefitEmployeesTransfersBetweenDepartments(args[0], args[1]);
         } catch (IOException e) {
             throw new RuntimeException("Неверно задан путь к файлам", e.getCause());
         }
