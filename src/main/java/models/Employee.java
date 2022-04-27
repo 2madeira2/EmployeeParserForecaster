@@ -1,14 +1,20 @@
 package models;
 
+import java.math.BigDecimal;
+
 public class Employee {
 
-    private final String surname;
-    private Long salary; // может быть BigDecimal, пока что оставлю так
-    private Integer departmentId;
+    private String surname;
+    private String name;
+    private String patronymic;
+    private BigDecimal salary;
+    private String departmentType;
 
-    public Employee(String surname, long salary, int id) {
+    public Employee(String surname, String name, String patronymic, BigDecimal salary, String departmentType) {
         this.surname = surname;
-        this.departmentId = id;
+        this.name = name;
+        this.patronymic = patronymic;
+        this.departmentType = departmentType;
         this.salary = salary;
     }
 
@@ -16,24 +22,44 @@ public class Employee {
         return surname;
     }
 
-    public long getSalary() {
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPatronymic() {
+        return patronymic;
+    }
+
+    public void setPatronymic(String patronymic) {
+        this.patronymic = patronymic;
+    }
+
+    public BigDecimal getSalary() {
         return salary;
     }
 
-    public void setSalary(long salary) {
+    public void setSalary(BigDecimal salary) {
         this.salary = salary;
     }
 
-    public int getDepartmentId() {
-        return departmentId;
+    public String getDepartmentType() {
+        return departmentType;
     }
 
-    public void setDepartmentId(int id) {
-        this.departmentId = id;
+    public void setDepartmentType(String departmentType) {
+        this.departmentType = departmentType;
     }
 
     @Override
     public String toString() {
-        return "Работник " + surname + " с зарплатой " + salary;
+        return "Работник " + surname + " " + name + " " + patronymic + " с зарплатой " + salary;
     }
 }
