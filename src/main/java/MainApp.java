@@ -1,8 +1,7 @@
-import models.Employee;
+import model.Department;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public class MainApp {
     public static void main(String[] args) {
@@ -10,8 +9,8 @@ public class MainApp {
             ParserPrinterToConsole parserPrinterToConsole = new ParserPrinterToConsole();
             WriterIntoFile writerIntoFile = new WriterIntoFile();
             try {
-                Map<String, List<Employee>> employeesGroupingByDepartment = parserPrinterToConsole.parseAndPrintToConsoleEmployeesInfo(args[0]);
-                writerIntoFile.outputInFileBenefitEmployeesTransfersBetweenDepartments(args[1], employeesGroupingByDepartment);
+                List<Department> departments = parserPrinterToConsole.parseAndPrintToConsoleEmployeesInfo(args[0]);
+                writerIntoFile.outputInFileBenefitEmployeesTransfersBetweenDepartments(args[1], departments);
             } catch (IOException e) {
                 System.out.println("Неверно задан путь к файлам");
             }

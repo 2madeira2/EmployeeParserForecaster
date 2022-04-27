@@ -1,4 +1,4 @@
-package models;
+package model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -16,8 +16,12 @@ public class Department {
         this.employees = new ArrayList<>();
     }
 
+    public Department() {
+        this.employees = new ArrayList<>();
+    }
+
     public List<Employee> getEmployees() {
-        return employees;
+        return new ArrayList<>(employees);
     }
 
     public String getDepartmentType() {
@@ -26,6 +30,10 @@ public class Department {
 
     public void addEmployee(Employee employee) {
         employees.add(employee);
+    }
+
+    public void addAllEmployees(List<Employee> list) {
+        employees.addAll(list);
     }
 
     public BigDecimal getAverageSalary() {

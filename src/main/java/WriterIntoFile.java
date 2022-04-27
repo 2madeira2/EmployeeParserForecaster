@@ -1,41 +1,43 @@
-import models.Employee;
+import format_helper.OutputFileFormatter;
+import model.Department;
+import model.Employee;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class WriterIntoFile {
 
-    private FormatHelper formatter;
+    private OutputFileFormatter formatter;
 
     public WriterIntoFile() {
-        this.formatter = new FormatHelper();
+        this.formatter = new OutputFileFormatter();
     }
 
-    private String generateBenefitEmployeesTransfersBetweenDepartments(Map<String, List<Employee>> employeesGroupingByDepartment) {
+    private String generateBenefitEmployeesTransfersBetweenDepartments(List<Department> departmentList) {
         StringBuilder result = new StringBuilder();
-        for (Map.Entry<String, List<Employee>> entry : employeesGroupingByDepartment.entrySet()) {
-            List<List<Employee>> allVariantsForCurrentDepartment = getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(getAverageSalaryByDepartment(entry.getValue()), 0, entry.getValue(),
+        for (Department departmentFrom : departmentList) {
+            List<List<Employee>> allVariantsForCurrentDepartment = getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(departmentFrom.getAverageSalary(), 0, departmentFrom.getEmployees(),
                     new ArrayList<>());
 
-            for(Map.Entry<String, List<Employee>> innerEntry : employeesGroupingByDepartment.entrySet()) {
-                List<Employee> currentInnerList = innerEntry.getValue();
+            for(Department departmentTo : departmentList) {
                 for(List<Employee> list : allVariantsForCurrentDepartment) {
-                    List<Employee> currentInnerListWithAddedEmployees = new ArrayList<>(currentInnerList);
-                    currentInnerListWithAddedEmployees.addAll(list);
-                    if (getAverageSalaryByDepartment(currentInnerList).compareTo(getAverageSalaryByDepartment(currentInnerListWithAddedEmployees)) < 0) {
-                        List<Employee> entryListWithRemovingEmployee = new ArrayList<>(entry.getValue());
+                    Department departmentToAfterTransfer = new Department(departmentTo.getDepartmentType());
+                    departmentToAfterTransfer.addAllEmployees(departmentTo.getEmployees());
+                    departmentToAfterTransfer.addAllEmployees(list);
+                    if (departmentTo.getAverageSalary().compareTo(departmentToAfterTransfer.getAverageSalary()) < 0) {
+                        List<Employee> entryListWithRemovingEmployee = new ArrayList<>(departmentFrom.getEmployees());
                         entryListWithRemovingEmployee.removeAll(list);
-                        result.append(formatter.formatStringForOutputInFile(entry.getKey(), innerEntry.getKey(), list,
-                                getAverageSalaryByDepartment(entry.getValue()),
-                                getAverageSalaryByDepartment(currentInnerList),
-                                getAverageSalaryByDepartment(entryListWithRemovingEmployee),
-                                getAverageSalaryByDepartment(currentInnerListWithAddedEmployees)
-                                ));
+                        Department departmentFromAfterTransfer = new Department(departmentFrom.getDepartmentType());
+                        departmentFromAfterTransfer.addAllEmployees(entryListWithRemovingEmployee);
+                        result.append(formatter.formatStringForOutputInFile(departmentFrom.getDepartmentType(), departmentTo.getDepartmentType(), list,
+                                departmentFrom.getAverageSalary(),
+                                departmentTo.getAverageSalary(),
+                                departmentFromAfterTransfer.getAverageSalary(),
+                                departmentToAfterTransfer.getAverageSalary())
+                                );
                     }
                 }
             }
@@ -51,7 +53,9 @@ public class WriterIntoFile {
         for (int i = startingPosition; i < sourceEmployeesListInDep.size(); i++) {
             List<Employee> currentList = new ArrayList<>(list);
             currentList.add(sourceEmployeesListInDep.get(i));
-            if (getAverageSalaryByDepartment(currentList).compareTo(averageSalaryInDepAtThisMoment) < 0) {
+            Department department = new Department();
+            department.addAllEmployees(currentList);
+            if ((department.getAverageSalary()).compareTo(averageSalaryInDepAtThisMoment) < 0) {
                 allEmployeesCombinationsForRemovingFromDepartment.add(currentList);
             }
             allEmployeesCombinationsForRemovingFromDepartment.addAll(getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(averageSalaryInDepAtThisMoment, i + 1,
@@ -60,18 +64,9 @@ public class WriterIntoFile {
         return allEmployeesCombinationsForRemovingFromDepartment;
     }
 
-    private BigDecimal getAverageSalaryByDepartment(List<Employee> list) {
-        if (list.isEmpty()) return new BigDecimal("0");
-        return list.stream()
-                .map(Employee::getSalary)
-                .reduce(BigDecimal::add)
-                .orElseThrow(IllegalStateException::new)
-                .divide(BigDecimal.valueOf(list.size()), 2, RoundingMode.HALF_UP);
-    }
-
-    public void outputInFileBenefitEmployeesTransfersBetweenDepartments(String outputPath, Map<String, List<Employee>> employeesGroupingByDepartment) throws IOException {
+    public void outputInFileBenefitEmployeesTransfersBetweenDepartments(String outputPath, List<Department> departments) throws IOException {
         try(FileWriter f = new FileWriter(outputPath)) {
-            f.write(generateBenefitEmployeesTransfersBetweenDepartments(employeesGroupingByDepartment));
+            f.write(generateBenefitEmployeesTransfersBetweenDepartments(departments));
         }
     }
 

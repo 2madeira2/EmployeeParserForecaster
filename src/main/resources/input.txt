@@ -1,8 +1,13 @@
 Ivanov Ivan Ivanovich 10000 Third
 Peskov Andrey Denisovich 10000 First
-Alehin Ilya Nikolaevich 10000 First
+Alehin Ilya Nikolaevich 10000.50 First
 Ilin Vladimir Vladimirovich 1000 First
-Nikolaev Alexander Andreevich 100 Third
+Nikolaev Alexander Andreevich 100.22 Third
 Andreev Petr Semenovich 100 Third
-Petrov Anton Mihailovich 3000 Second
-Antonov Petr Andreevich 8000 Second
+Petrov Anton Mihailovich 3000.75 Second
+Antonov Petr Andreevich 8000.35 Second
+Timiryazev 8000
+Erofeev Venedickt Vasilevich Third
+
+qwertyuojhdcfn
+Ulyanov Vladimir Ilich 8999r Second

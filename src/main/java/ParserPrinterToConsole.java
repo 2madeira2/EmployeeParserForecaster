@@ -1,4 +1,6 @@
-import models.Employee;
+import format_helper.ReadFromFileFormatter;
+import model.Department;
+import model.Employee;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,23 +14,25 @@ import java.util.Map;
 
 public class ParserPrinterToConsole {
 
-    private FormatHelper formatter;
+    private ReadFromFileFormatter formatter;
 
     public ParserPrinterToConsole() {
-        this.formatter = new FormatHelper();
+        this.formatter = new ReadFromFileFormatter();
     }
 
-    public Map<String, List<Employee>> parseAndPrintToConsoleEmployeesInfo(String path) throws IOException {
-        Map<String, List<Employee>> employeesGroupingByDepartment = new HashMap<>();
+    public List<Department> parseAndPrintToConsoleEmployeesInfo(String path) throws IOException {
+        Map<String, Department> departmentMap = new HashMap<>();
         try(LineNumberReader reader = new LineNumberReader(new FileReader(path))) {
             String line = reader.readLine();
             while(line != null) {
                 if(formatter.checkEmployeesInfoStringFormat(line)) {
                     String[] employeeInfo = line.split(" ");
-                    if (employeesGroupingByDepartment.containsKey(employeeInfo[4])) {
-                        employeesGroupingByDepartment.get(employeeInfo[4]).add(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3]), employeeInfo[4]));
+                    if (departmentMap.containsKey(employeeInfo[4])) {
+                        departmentMap.get(employeeInfo[4]).addEmployee(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3]), employeeInfo[4]));
                     } else {
-                        employeesGroupingByDepartment.put(employeeInfo[4], new ArrayList<>(List.of(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3]), employeeInfo[4]))));
+                        Department department = new Department(employeeInfo[4]);
+                        department.addEmployee(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3]), employeeInfo[4]));
+                        departmentMap.put(employeeInfo[4], department);
                     }
                 } else {
                     System.out.println(formatter.getMessageAboutFormattingError(reader.getLineNumber()));
@@ -36,15 +40,16 @@ public class ParserPrinterToConsole {
                 line = reader.readLine();
             }
         }
-        for(Map.Entry<String, List<Employee>> entry : employeesGroupingByDepartment.entrySet()) {
+        List<Department> departmentsList = new ArrayList<>(departmentMap.values());
+        for(Department department : departmentsList) {
             BigDecimal sum = new BigDecimal("0");
-            for(Employee employee : entry.getValue()) {
+            for(Employee employee : department.getEmployees()) {
                 sum = sum.add(employee.getSalary());
             }
-            System.out.println(formatter.formatInfoOutputToConsole(entry.getKey(),
-                                                                   sum.divide(BigDecimal.valueOf(entry.getValue().size()), 2, RoundingMode.HALF_UP),
-                                                                   entry.getValue()));
+            System.out.println(formatter.formatInfoOutputToConsole(department.getDepartmentType(),
+                                                                   sum.divide(BigDecimal.valueOf(department.getEmployees().size()), 2, RoundingMode.HALF_UP),
+                                                                   department.getEmployees()));
         }
-        return employeesGroupingByDepartment;
+        return departmentsList;
     }
 }
