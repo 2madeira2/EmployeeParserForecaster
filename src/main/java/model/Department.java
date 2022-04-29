@@ -9,6 +9,7 @@ public class Department {
 
     private List<Employee> employees;
 
+    //TODO: подумать, что сделать с departmentType
     private String departmentType;
 
     public Department(String departmentType) {
@@ -37,6 +38,7 @@ public class Department {
     }
 
     public BigDecimal getAverageSalary() {
+        if(employees.isEmpty()) return BigDecimal.ZERO;
         BigDecimal sum = new BigDecimal("0");
         for(Employee e : employees) {
             sum = sum.add(e.getSalary());

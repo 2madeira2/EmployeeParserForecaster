@@ -17,6 +17,7 @@ public class WriterIntoFile {
     }
 
     private String generateBenefitEmployeesTransfersBetweenDepartments(List<Department> departmentList) {
+        //TODO: подумать о том, чтобы не создавать Department, а считать зп по департаменту плюс зп сотрудников комбинации делить на department.size + list.size
         StringBuilder result = new StringBuilder();
         for (Department departmentFrom : departmentList) {
             List<List<Employee>> allVariantsForCurrentDepartment = getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(departmentFrom.getAverageSalary(), 0, departmentFrom.getEmployees(),
@@ -65,6 +66,8 @@ public class WriterIntoFile {
     }
 
     public void outputInFileBenefitEmployeesTransfersBetweenDepartments(String outputPath, List<Department> departments) throws IOException {
+        /*TODO: подумать либо о разделении WriterIntoFile на два класса - класс подсчета вариантов и класс
+         *TODO: для вывода в файл. Либо комбинации не хранить в памяти, а тут же каждую комбинацию проверять на деле */
         try(FileWriter f = new FileWriter(outputPath)) {
             f.write(generateBenefitEmployeesTransfersBetweenDepartments(departments));
         }

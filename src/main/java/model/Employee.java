@@ -8,6 +8,8 @@ public class Employee {
     private String name;
     private String patronymic;
     private BigDecimal salary;
+
+    //TODO: подумать, что сделать с departmentType
     private String departmentType;
 
     public Employee(String surname, String name, String patronymic, BigDecimal salary, String departmentType) {
