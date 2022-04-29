@@ -26,10 +26,10 @@ public class ParserFromFile {
                 if (formatter.checkEmployeesInfoStringFormat(line)) {
                     String[] employeeInfo = line.split(" ");
                     if (departmentMap.containsKey(employeeInfo[4])) {
-                        departmentMap.get(employeeInfo[4]).addEmployee(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3]), employeeInfo[4]));
+                        departmentMap.get(employeeInfo[4]).addEmployee(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3])));
                     } else {
                         Department department = new Department(employeeInfo[4]);
-                        department.addEmployee(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3]), employeeInfo[4]));
+                        department.addEmployee(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3])));
                         departmentMap.put(employeeInfo[4], department);
                     }
                 } else {

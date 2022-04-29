@@ -9,14 +9,12 @@ public class Employee {
     private String patronymic;
     private BigDecimal salary;
 
-    //TODO: подумать, что сделать с departmentType
-    private String departmentType;
+    //TODO: нужна ли ссылка на Department?
 
-    public Employee(String surname, String name, String patronymic, BigDecimal salary, String departmentType) {
+    public Employee(String surname, String name, String patronymic, BigDecimal salary) {
         this.surname = surname;
         this.name = name;
         this.patronymic = patronymic;
-        this.departmentType = departmentType;
         this.salary = salary;
     }
 
@@ -50,14 +48,6 @@ public class Employee {
 
     public void setSalary(BigDecimal salary) {
         this.salary = salary;
-    }
-
-    public String getDepartmentType() {
-        return departmentType;
-    }
-
-    public void setDepartmentType(String departmentType) {
-        this.departmentType = departmentType;
     }
 
     @Override

@@ -8,12 +8,10 @@ import java.util.List;
 public class Department {
 
     private List<Employee> employees;
-
-    //TODO: подумать, что сделать с departmentType
-    private String departmentType;
+    private String departmentName;
 
     public Department(String departmentType) {
-        this.departmentType = departmentType;
+        this.departmentName = departmentType;
         this.employees = new ArrayList<>();
     }
 
@@ -26,7 +24,7 @@ public class Department {
     }
 
     public String getDepartmentType() {
-        return departmentType;
+        return departmentName;
     }
 
     public void addEmployee(Employee employee) {
