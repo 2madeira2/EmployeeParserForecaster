@@ -5,6 +5,7 @@ import model.Employee;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,9 @@ public class WriterIntoFile {
     }
 
     private String generateBenefitEmployeesTransfersBetweenDepartments(List<Department> departmentList) {
-        //TODO: подумать о том, чтобы не создавать Department, а считать зп по департаменту плюс зп сотрудников комбинации делить на department.size + list.size
+        //TODO: подумать о том, что лучше - не создавать Department,
+        // а считать зп по департаменту плюс зп сотрудников комбинации делить на department.size + list.size
+        // или же все таки создавать в методе новые объекты Department, используя их метод getAverageSalary
         StringBuilder result = new StringBuilder();
         for (Department departmentFrom : departmentList) {
             List<List<Employee>> allVariantsForCurrentDepartment = getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(departmentFrom.getAverageSalary(), 0, departmentFrom.getEmployees(),
@@ -25,10 +28,17 @@ public class WriterIntoFile {
 
             for(Department departmentTo : departmentList) {
                 for(List<Employee> list : allVariantsForCurrentDepartment) {
-                    Department departmentToAfterTransfer = new Department(departmentTo.getDepartmentType());
-                    departmentToAfterTransfer.addAllEmployees(departmentTo.getEmployees());
-                    departmentToAfterTransfer.addAllEmployees(list);
-                    if (departmentTo.getAverageSalary().compareTo(departmentToAfterTransfer.getAverageSalary()) < 0) {
+                    BigDecimal totalSalaryInDepartmentTo = new BigDecimal("0");
+                    totalSalaryInDepartmentTo = departmentTo.getEmployees().stream()
+                                                                           .map(Employee::getSalary)
+                                                                           .reduce(BigDecimal::add)
+                                                                           .orElseThrow(IllegalArgumentException::new);
+                    totalSalaryInDepartmentTo = list.stream()
+                                                    .map(Employee::getSalary)
+                                                    .reduce(totalSalaryInDepartmentTo, BigDecimal::add);
+
+                    BigDecimal averageSalaryInDepartmentToAfterTransfer = totalSalaryInDepartmentTo.divide(BigDecimal.valueOf(departmentTo.getEmployees().size() + list.size()), 2, RoundingMode.HALF_UP);
+                    if(departmentTo.getAverageSalary().compareTo(averageSalaryInDepartmentToAfterTransfer) < 0) {
                         List<Employee> entryListWithRemovingEmployee = new ArrayList<>(departmentFrom.getEmployees());
                         entryListWithRemovingEmployee.removeAll(list);
                         Department departmentFromAfterTransfer = new Department(departmentFrom.getDepartmentType());
@@ -37,8 +47,8 @@ public class WriterIntoFile {
                                 departmentFrom.getAverageSalary(),
                                 departmentTo.getAverageSalary(),
                                 departmentFromAfterTransfer.getAverageSalary(),
-                                departmentToAfterTransfer.getAverageSalary())
-                                );
+                                averageSalaryInDepartmentToAfterTransfer
+                        ));
                     }
                 }
             }

@@ -1,7 +1,9 @@
 import model.Department;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainApp {
     public static void main(String[] args) {
@@ -10,9 +12,10 @@ public class MainApp {
             PrinterToConsole printerToConsole = new PrinterToConsole();
             WriterIntoFile writerIntoFile = new WriterIntoFile();
             try {
-                List<Department> departments = parserFromFile.parseFromFileDepartmentsInfo(args[0]);
-                printerToConsole.printToConsoleDepartmentsInfo(departments);
-                writerIntoFile.outputInFileBenefitEmployeesTransfersBetweenDepartments(args[1], departments);
+                Map<String, Department> departmentMap = parserFromFile.parseFromFileDepartmentsInfo(args[0]);
+                ArrayList<Department> departmentsList = new ArrayList<>(departmentMap.values());
+                printerToConsole.printToConsoleDepartmentsInfo(departmentsList);
+                writerIntoFile.outputInFileBenefitEmployeesTransfersBetweenDepartments(args[1], departmentsList);
             } catch (IOException e) {
                 System.out.println("Неверно задан путь к файлам");
             }

@@ -17,8 +17,7 @@ public class ParserFromFile {
         this.formatter = new ReadFromFileFormatter();
     }
 
-    public List<Department> parseFromFileDepartmentsInfo(String path) throws IOException {
-        //TODO: подумать о возврате Map
+    public Map<String, Department> parseFromFileDepartmentsInfo(String path) throws IOException {
         Map<String, Department> departmentMap = new HashMap<>();
         try (LineNumberReader reader = new LineNumberReader(new FileReader(path))) {
             String line = reader.readLine();
@@ -38,6 +37,6 @@ public class ParserFromFile {
                 line = reader.readLine();
             }
         }
-        return new ArrayList<>(departmentMap.values());
+        return departmentMap;
     }
 }
