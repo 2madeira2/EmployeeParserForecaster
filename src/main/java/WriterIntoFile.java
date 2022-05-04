@@ -17,70 +17,71 @@ public class WriterIntoFile {
         this.formatter = new OutputFileFormatter();
     }
 
-    private String generateBenefitEmployeesTransfersBetweenDepartments(List<Department> departmentList) {
-        //TODO: подумать о том, что лучше - не создавать Department,
-        // а считать зп по департаменту плюс зп сотрудников комбинации делить на department.size + list.size
-        // или же все таки создавать в методе новые объекты Department, используя их метод getAverageSalary
+    public void outputInFileBenefitEmployeesTransfersBetweenDepartments(String outputPath, List<Department> departments) throws IOException {
+        try(FileWriter f = new FileWriter(outputPath)) {
+            f.write(getAllBenefitTransfersBetweenDepartments(departments));
+        }
+    }
+
+    private String getAllBenefitTransfersBetweenDepartments(List<Department> departmentList) {
         StringBuilder result = new StringBuilder();
         for (Department departmentFrom : departmentList) {
-            List<List<Employee>> allVariantsForCurrentDepartment = getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(departmentFrom.getAverageSalary(), 0, departmentFrom.getEmployees(),
-                    new ArrayList<>());
-
-            for(Department departmentTo : departmentList) {
-                for(List<Employee> list : allVariantsForCurrentDepartment) {
-                    BigDecimal totalSalaryInDepartmentTo = new BigDecimal("0");
-                    totalSalaryInDepartmentTo = departmentTo.getEmployees().stream()
-                                                                           .map(Employee::getSalary)
-                                                                           .reduce(BigDecimal::add)
-                                                                           .orElseThrow(IllegalArgumentException::new);
-                    totalSalaryInDepartmentTo = list.stream()
-                                                    .map(Employee::getSalary)
-                                                    .reduce(totalSalaryInDepartmentTo, BigDecimal::add);
-
-                    BigDecimal averageSalaryInDepartmentToAfterTransfer = totalSalaryInDepartmentTo.divide(BigDecimal.valueOf(departmentTo.getEmployees().size() + list.size()), 2, RoundingMode.HALF_UP);
-                    if(departmentTo.getAverageSalary().compareTo(averageSalaryInDepartmentToAfterTransfer) < 0) {
-                        List<Employee> entryListWithRemovingEmployee = new ArrayList<>(departmentFrom.getEmployees());
-                        entryListWithRemovingEmployee.removeAll(list);
-                        Department departmentFromAfterTransfer = new Department(departmentFrom.getDepartmentType());
-                        departmentFromAfterTransfer.addAllEmployees(entryListWithRemovingEmployee);
-                        result.append(formatter.formatStringForOutputInFile(departmentFrom.getDepartmentType(), departmentTo.getDepartmentType(), list,
-                                departmentFrom.getAverageSalary(),
-                                departmentTo.getAverageSalary(),
-                                departmentFromAfterTransfer.getAverageSalary(),
-                                averageSalaryInDepartmentToAfterTransfer
-                        ));
-                    }
-                }
+            for (Department departmentTo : departmentList) {
+                result.append(getAllBenefitTransfersBetweenTwoDepartments(departmentFrom, departmentTo,0,
+                        new ArrayList<>()));
             }
         }
         return result.toString();
     }
 
-    private List<List<Employee>> getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(BigDecimal averageSalaryInDepAtThisMoment,
-                                                                                                           int startingPosition,
-                                                                                                           List<Employee> sourceEmployeesListInDep,
-                                                                                                           List<Employee> list){
-        List<List<Employee>> allEmployeesCombinationsForRemovingFromDepartment = new ArrayList<>();
-        for (int i = startingPosition; i < sourceEmployeesListInDep.size(); i++) {
+    private String getAllBenefitTransfersBetweenTwoDepartments(Department departmentFrom,
+                                                               Department departmentTo,
+                                                               int startingPosition,
+                                                               List<Employee> list){
+        StringBuilder result = new StringBuilder();
+        for (int i = startingPosition; i < departmentFrom.getEmployees().size(); i++) {
             List<Employee> currentList = new ArrayList<>(list);
-            currentList.add(sourceEmployeesListInDep.get(i));
+            currentList.add(departmentFrom.getEmployees().get(i));
             Department department = new Department();
             department.addAllEmployees(currentList);
-            if ((department.getAverageSalary()).compareTo(averageSalaryInDepAtThisMoment) < 0) {
-                allEmployeesCombinationsForRemovingFromDepartment.add(currentList);
+            if ((department.getAverageSalary()).compareTo(departmentFrom.getAverageSalary()) < 0) {
+                List<BigDecimal> averageSalariesInDepartmentsAfterTransfer = new ArrayList<>();
+                if(isAverageSalaryAfterAddingEmployeesIncreased(currentList, departmentFrom, departmentTo, averageSalariesInDepartmentsAfterTransfer)) {
+                    result.append(getCurrentTransferInfo(departmentFrom, departmentTo, currentList, averageSalariesInDepartmentsAfterTransfer));
+                }
             }
-            allEmployeesCombinationsForRemovingFromDepartment.addAll(getAllEmployeesCombinationsWhoseRemovingIncreaseAverageSalaryInDep(averageSalaryInDepAtThisMoment, i + 1,
-                    sourceEmployeesListInDep, currentList));
+            result.append(getAllBenefitTransfersBetweenTwoDepartments(departmentFrom, departmentTo, i + 1,
+                    currentList));
         }
-        return allEmployeesCombinationsForRemovingFromDepartment;
+        return result.toString();
     }
 
-    public void outputInFileBenefitEmployeesTransfersBetweenDepartments(String outputPath, List<Department> departments) throws IOException {
-        /*TODO: подумать либо о разделении WriterIntoFile на два класса - класс подсчета вариантов и класс
-         *TODO: для вывода в файл. Либо комбинации не хранить в памяти, а тут же каждую комбинацию проверять на деле */
-        try(FileWriter f = new FileWriter(outputPath)) {
-            f.write(generateBenefitEmployeesTransfersBetweenDepartments(departments));
+    private boolean isAverageSalaryAfterAddingEmployeesIncreased(List<Employee> list, Department departmentFrom, Department departmentTo, List<BigDecimal> averageSalariesInDepartmentsAfterTransfer) {
+        BigDecimal totalSalaryInCurrentEmployeesCombination = list.stream()
+                .map(Employee::getSalary)
+                .reduce(BigDecimal::add)
+                .orElseThrow(IllegalArgumentException::new);
+        BigDecimal totalSalaryInDepartmentToAfterTransfer = departmentTo.getTotalSalary().add(totalSalaryInCurrentEmployeesCombination);
+        BigDecimal averageSalaryInDepartmentToAfterTransfer = totalSalaryInDepartmentToAfterTransfer.divide(BigDecimal.valueOf(departmentTo.getEmployees().size() + list.size()), 2, RoundingMode.HALF_UP);
+        if(departmentTo.getAverageSalary().compareTo(averageSalaryInDepartmentToAfterTransfer) < 0) {
+            BigDecimal totalSalaryInDepartmentFromAfterTransfer = departmentFrom.getTotalSalary().subtract(totalSalaryInCurrentEmployeesCombination);
+            BigDecimal averageSalaryInDepartmentFromAfterTransfer = totalSalaryInDepartmentFromAfterTransfer.divide(BigDecimal.valueOf(departmentFrom.getEmployees().size() - list.size()), 2, RoundingMode.HALF_UP);
+            averageSalariesInDepartmentsAfterTransfer.add(averageSalaryInDepartmentFromAfterTransfer);
+            averageSalariesInDepartmentsAfterTransfer.add(averageSalaryInDepartmentToAfterTransfer);
+            return true;
         }
+        return false;
     }
 
+    private String getCurrentTransferInfo(Department departmentFrom, Department departmentTo, List<Employee> currentEmployeesRecruitmentForTransfer, List<BigDecimal> averageSalariesInDepartmentsAfterTransfer) {
+        StringBuilder result = new StringBuilder();
+        return result.append(formatter.formatStringForOutputInFile(departmentFrom.getDepartmentName(),
+                                                            departmentTo.getDepartmentName(),
+                                                            currentEmployeesRecruitmentForTransfer,
+                                                            departmentFrom.getAverageSalary(),
+                                                            departmentTo.getAverageSalary(),
+                                                            averageSalariesInDepartmentsAfterTransfer.get(0),
+                                                            averageSalariesInDepartmentsAfterTransfer.get(1)
+        )).toString();
+    }
 }

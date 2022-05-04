@@ -23,7 +23,7 @@ public class Department {
         return new ArrayList<>(employees);
     }
 
-    public String getDepartmentType() {
+    public String getDepartmentName() {
         return departmentName;
     }
 
@@ -37,11 +37,14 @@ public class Department {
 
     public BigDecimal getAverageSalary() {
         if(employees.isEmpty()) return BigDecimal.ZERO;
-        BigDecimal sum = new BigDecimal("0");
-        for(Employee e : employees) {
-            sum = sum.add(e.getSalary());
-        }
-        return sum.divide(BigDecimal.valueOf(employees.size()), 2, RoundingMode.HALF_UP);
+        return getTotalSalary().divide(BigDecimal.valueOf(employees.size()), 2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getTotalSalary() {
+        return employees.stream()
+                        .map(Employee::getSalary)
+                        .reduce(BigDecimal::add)
+                        .orElseThrow(IllegalArgumentException::new);
     }
 
 }

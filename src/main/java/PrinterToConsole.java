@@ -11,7 +11,7 @@ public class PrinterToConsole {
 
     public void printToConsoleDepartmentsInfo(List<Department> departmentsList) {
         for(Department department : departmentsList) {
-            System.out.println(formatter.formatInfoOutputToConsole(department.getDepartmentType(),
+            System.out.println(formatter.formatInfoOutputToConsole(department.getDepartmentName(),
                     department.getAverageSalary(),
                     department.getEmployees()));
         }
