@@ -3,6 +3,7 @@ import model.Department;
 import java.util.List;
 
 public class PrinterToConsole {
+
     private ReadFromFileFormatter formatter;
 
     public PrinterToConsole() {
@@ -16,5 +17,4 @@ public class PrinterToConsole {
                     department.getEmployees()));
         }
     }
-
 }
