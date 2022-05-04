@@ -15,10 +15,6 @@ public class Department {
         this.employees = new ArrayList<>();
     }
 
-    public Department() {
-        this.employees = new ArrayList<>();
-    }
-
     public List<Employee> getEmployees() {
         return new ArrayList<>(employees);
     }

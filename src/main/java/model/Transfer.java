@@ -19,19 +19,9 @@ public class Transfer {
         this.formatter = new OutputFileFormatter();
     }
 
-    private BigDecimal getAverageSalaryInDepartmentToAfterTransfer() {
-        return employees.stream()
-                        .map(Employee::getSalary)
-                        .reduce(departmentTo.getAverageSalary(), BigDecimal::add);
-    }
-
-    private BigDecimal getAverageSalaryInDepartmentFromAfterTransfer() {
-        BigDecimal totalSalaryInCurrentEmployeesCombination = employees.stream()
-                .map(Employee::getSalary)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
-        BigDecimal totalSalaryInDepartmentFromAfterTransfer = departmentFrom.getTotalSalary().subtract(totalSalaryInCurrentEmployeesCombination);
-        return totalSalaryInDepartmentFromAfterTransfer.divide(BigDecimal.valueOf(departmentFrom.getEmployees().size() - employees.size()), 2, RoundingMode.HALF_UP);
+    public boolean isBenefitTransfer() {
+        return (getAverageSalaryInDepartmentFromAfterTransfer().compareTo(departmentFrom.getAverageSalary()) > 0) &&
+                (getAverageSalaryInDepartmentToAfterTransfer().compareTo(departmentTo.getAverageSalary()) > 0);
     }
 
     public String getTransferInfo() {
@@ -44,5 +34,22 @@ public class Transfer {
                 getAverageSalaryInDepartmentFromAfterTransfer(),
                 getAverageSalaryInDepartmentToAfterTransfer()
         )).toString();
+    }
+
+    private BigDecimal getAverageSalaryInDepartmentToAfterTransfer() {
+        BigDecimal totalSalaryInDepartmentToAfterTransfer = employees.stream()
+                                                                     .map(Employee::getSalary)
+                                                                     .reduce(departmentTo.getTotalSalary(), BigDecimal::add);
+       return totalSalaryInDepartmentToAfterTransfer.divide(BigDecimal.valueOf(departmentTo.getEmployees().size() + employees.size()), 2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal getAverageSalaryInDepartmentFromAfterTransfer() {
+        if (departmentFrom.getEmployees().size() - employees.size() == 0) return BigDecimal.ZERO;
+        BigDecimal totalSalaryInCurrentEmployeesCombination = employees.stream()
+                .map(Employee::getSalary)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+        BigDecimal totalSalaryInDepartmentFromAfterTransfer = departmentFrom.getTotalSalary().subtract(totalSalaryInCurrentEmployeesCombination);
+        return totalSalaryInDepartmentFromAfterTransfer.divide(BigDecimal.valueOf(departmentFrom.getEmployees().size() - employees.size()), 2, RoundingMode.HALF_UP);
     }
 }

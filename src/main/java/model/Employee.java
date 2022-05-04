@@ -9,8 +9,6 @@ public class Employee {
     private String patronymic;
     private BigDecimal salary;
 
-    //TODO: нужна ли ссылка на Department?
-
     public Employee(String surname, String name, String patronymic, BigDecimal salary) {
         this.surname = surname;
         this.name = name;
