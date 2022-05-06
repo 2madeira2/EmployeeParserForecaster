@@ -9,12 +9,12 @@ public class MainApp {
         if(checkCommandLineArguments(args.length)) {
             ParserFromFile parserFromFile = new ParserFromFile();
             PrinterToConsole printerToConsole = new PrinterToConsole();
-            WriterIntoFile writerIntoFile = new WriterIntoFile();
+            PossibleTransfersGenerator transfersGenerator = new PossibleTransfersGenerator();
             try {
                 Map<String, Department> departmentMap = parserFromFile.parseFromFileDepartmentsInfo(args[0]);
                 ArrayList<Department> departmentsList = new ArrayList<>(departmentMap.values());
                 printerToConsole.printToConsoleDepartmentsInfo(departmentsList);
-                writerIntoFile.outputInFileBenefitEmployeesTransfersBetweenDepartments(args[1], departmentsList);
+                transfersGenerator.printAllBenefitTransfersBetweenDepartments(departmentsList, args[1]);
             } catch (IOException e) {
                 System.out.println("Неверно задан путь к файлам");
             }

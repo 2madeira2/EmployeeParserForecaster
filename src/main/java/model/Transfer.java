@@ -1,6 +1,6 @@
 package model;
 
-import format_helper.OutputFileFormatter;
+import formathelper.OutputFileFormatter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;

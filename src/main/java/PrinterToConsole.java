@@ -1,4 +1,4 @@
-import format_helper.ReadFromFileFormatter;
+import formathelper.ReadFromFileFormatter;
 import model.Department;
 import java.util.List;
 

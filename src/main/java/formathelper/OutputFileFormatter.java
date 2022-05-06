@@ -1,4 +1,4 @@
-package format_helper;
+package formathelper;
 
 import model.Employee;
 
