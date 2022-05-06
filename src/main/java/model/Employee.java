@@ -16,6 +16,10 @@ public class Employee {
         this.salary = salary;
     }
 
+    public Employee(String surname, String name, BigDecimal salary) {
+        this(surname, name, "", salary);
+    }
+
     public String getSurname() {
         return surname;
     }

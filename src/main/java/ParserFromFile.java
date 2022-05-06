@@ -21,17 +21,21 @@ public class ParserFromFile {
         try (LineNumberReader reader = new LineNumberReader(new FileReader(path))) {
             String line = reader.readLine();
             while (line != null) {
-                if (formatter.checkEmployeesInfoStringFormat(line)) {
-                    String[] employeeInfo = line.split(" ");
-                    if (departmentMap.containsKey(employeeInfo[4])) {
-                        departmentMap.get(employeeInfo[4]).addEmployee(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3])));
+                String[] employeeInfo = line.split(";");
+                if(formatter.checkEmployeesInfoStringFormAtVersionTwo(employeeInfo, reader.getLineNumber())) {
+                    Employee employeeForAddingInDepartment;
+                    if (employeeInfo.length == 4) {
+                        employeeForAddingInDepartment = new Employee(employeeInfo[0], employeeInfo[1], new BigDecimal(employeeInfo[3]));
                     } else {
-                        Department department = new Department(employeeInfo[4]);
-                        department.addEmployee(new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[3])));
-                        departmentMap.put(employeeInfo[4], department);
+                        employeeForAddingInDepartment = new Employee(employeeInfo[0], employeeInfo[1], employeeInfo[2], new BigDecimal(employeeInfo[4]));
                     }
-                } else {
-                    System.out.println(formatter.getMessageAboutFormattingError(reader.getLineNumber()));
+                    if (departmentMap.containsKey(employeeInfo[employeeInfo.length - 2])) {
+                        departmentMap.get(employeeInfo[employeeInfo.length - 2]).addEmployee(employeeForAddingInDepartment);
+                    } else {
+                        Department department = new Department(employeeInfo[employeeInfo.length - 2]);
+                        department.addEmployee(employeeForAddingInDepartment);
+                        departmentMap.put(employeeInfo[employeeInfo.length - 2], department);
+                    }
                 }
                 line = reader.readLine();
             }
