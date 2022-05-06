@@ -1,7 +1,6 @@
 package format_helper;
 
 import model.Employee;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -17,9 +16,16 @@ public class ReadFromFileFormatter {
     }
 
     public boolean checkEmployeesInfoStringFormAtVersionTwo(String[] line, int lineNumber) {
-        if(line.length < 4) {
-            System.out.println("!Не хватает информации о сотруднике на строке " + lineNumber);
-            return false;
+        switch (line.length) {
+            case 1:
+                System.out.println("!Не указаны имя, отчество (опционально), отдел и зарплата сотрудника на строке " + lineNumber);
+                return false;
+            case 2:
+                System.out.println("!Не указаны отчество (опционально), отдел и зарплата сотрудника на строке " + lineNumber);
+                return false;
+            case 3:
+                System.out.println("!Не указана зарплата сотрудника на строке " + lineNumber);
+                return false;
         }
         return checkInitialsAndDepartmentFormat(line, lineNumber) & checkSalaryFormat(line[line.length - 1], lineNumber);
     }
