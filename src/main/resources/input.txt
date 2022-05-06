@@ -2,12 +2,12 @@ Ivanov;Ivan;Ivanovich;Third;10000
 Peskov;Andrey;Denisovich;First;10000
 Alehin;Ilya;Nikolaevich;First;10000.50
 Ilin;Vladimir;Vladimirovich;First;1000
-Nikolaev;Alexander;Andreevich;Third;100.22
+Nikolaev;Alexander;  ;Third;100.22
 Andreev;Petr;Semenovich;Third;100
 Petrov;Anton;Mihailovich;Second;3000.75
-Antonov;Andreevich;Second;8000.35
+      ;Petr;Andreevich;Second;8000.35
 Timiryazev;8000
 Erofeev;Venedickt;Vasilevich;Third
 
 qwertyuojhdcfn;
-Ulyanov;Vladimir;Ilich;Second;8999r
+Ulyanov;Vladimir;Ilich;Second;8999r;

@@ -18,7 +18,7 @@ public class ReadFromFileFormatter {
 
     public boolean checkEmployeesInfoStringFormAtVersionTwo(String[] line, int lineNumber) {
         if(line.length < 4) {
-            System.out.println("Не хватает информации о сотруднике на строке " + lineNumber);
+            System.out.println("!Не хватает информации о сотруднике на строке " + lineNumber);
             return false;
         }
         return checkInitialsAndDepartmentFormat(line, lineNumber) & checkSalaryFormat(line[line.length - 1], lineNumber);
@@ -29,22 +29,7 @@ public class ReadFromFileFormatter {
         for(int i = 0; i < line.length - 1; i++) {
             if (line[i].isBlank()) {
                 isCorrectInitialsAndDepartmentFormat = false;
-                switch (i) {
-                    case 0:
-                        System.out.println("Неверно указана фамилия на строке: " + lineNumber);
-                        break;
-                    case 1:
-                        System.out.println("Неверно указано имя на строке: " + lineNumber);
-                        break;
-                    case 2:
-                        if(line.length == 4)
-                            System.out.println("Неверно указан отдел на строке: " + lineNumber);
-                        else
-                            System.out.println("Неверно указано отчество на строке: " + lineNumber);
-                        break;
-                    case 3:
-                        System.out.println("Неверно указано отчество на строке: " + lineNumber);
-                }
+                printFormatErrorInformation(i, lineNumber, line.length);
             }
         }
         return isCorrectInitialsAndDepartmentFormat;
@@ -57,8 +42,31 @@ public class ReadFromFileFormatter {
             if (currentBigDecimal.scale() > 2) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
             isCorrectSalaryFormat = false;
-            System.out.println("Неверно указана зарплата сотрудника на строке " + lineNumber);
+            System.out.println("!Неверно указана зарплата сотрудника на строке " + lineNumber);
         }
         return isCorrectSalaryFormat;
+    }
+
+    private void printFormatErrorInformation(int i, int lineNumber, int lineLength) {
+        switch (i) {
+            case 0:
+                printErrorFormatMessage("фамилии", lineNumber);
+                break;
+            case 1:
+                printErrorFormatMessage("имени", lineNumber);
+                break;
+            case 2:
+                if (lineLength == 4)
+                    printErrorFormatMessage("отдела", lineNumber);
+                else
+                    printErrorFormatMessage("отчества", lineNumber);
+                break;
+            case 3:
+                printErrorFormatMessage("отчества", lineNumber);
+        }
+    }
+
+    private void printErrorFormatMessage(String what, int lineNumber) {
+        System.out.println("!Неверный формат " + what + " на строке: " + lineNumber);
     }
 }
