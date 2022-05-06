@@ -3,17 +3,17 @@ import model.Employee;
 import model.Transfer;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class PossibleTransfersGenerator {
 
     public List<Transfer> getAllBenefitTransfersBetweenDepartments(List<Department> departmentList) {
         List<Transfer> allTransfers = new ArrayList<>();
-        for (Department departmentFrom : departmentList) {
-            for (Department departmentTo : departmentList) {
-                if(!departmentFrom.equals(departmentTo)) {
-                    allTransfers.addAll(getAllBenefitTransfersBetweenTwoDepartments(departmentFrom, departmentTo, 0, new ArrayList<>()));
-                }
+        departmentList.sort(Comparator.comparing(Department::getAverageSalary, Comparator.reverseOrder()));
+        for (int i = 0; i < departmentList.size() - 1; i++) {
+            for (int j = i + 1; j < departmentList.size(); j++) {
+                allTransfers.addAll(getAllBenefitTransfersBetweenTwoDepartments(departmentList.get(i), departmentList.get(j), 0, new ArrayList<>()));
             }
         }
         return allTransfers;
