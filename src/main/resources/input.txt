@@ -5,7 +5,7 @@ Ilin;Vladimir;Vladimirovich;First;1000
 Nikolaev;Alexander;Andreevich;Third;100.22
 Andreev;Petr;Semenovich;Third;100
 Petrov;Anton;Mihailovich;Second;3000.75
-Antonov;Petr;Andreevich;Second;8000.35
+Antonov;Andreevich;Second;8000.35
 Timiryazev;8000
 Erofeev;Venedickt;Vasilevich;Third
 
