@@ -25,15 +25,14 @@ public class Transfer {
     }
 
     public String getTransferInfo() {
-        StringBuilder result = new StringBuilder();
-        return result.append(formatter.formatStringForOutputInFile(departmentFrom.getDepartmentName(),
+        return formatter.formatStringForOutputInFile(departmentFrom.getDepartmentName(),
                 departmentTo.getDepartmentName(),
                 employees,
                 departmentFrom.getAverageSalary(),
                 departmentTo.getAverageSalary(),
                 getAverageSalaryInDepartmentFromAfterTransfer(),
                 getAverageSalaryInDepartmentToAfterTransfer()
-        )).toString();
+        );
     }
 
     private BigDecimal getAverageSalaryInDepartmentToAfterTransfer() {

@@ -11,31 +11,29 @@ public class OutputFileFormatter {
                                               BigDecimal averageSalaryDepartmentToBeforeTransfer,
                                               BigDecimal averageSalaryDepartmentFromAfterTransfer,
                                               BigDecimal averageSalaryDepartmentToAfterTransfer) {
-        StringBuilder result = new StringBuilder();
-        result.append("Из отдела ")
-                .append(departmentFrom)
-                .append(" в отдел ")
-                .append(departmentTo)
-                .append(" с увеличением средней зп в обоих отделах возможен перевод следующих сотрудников: \n")
-                .append(employees.toString().replaceAll("[\\[\\]]", ""))
-                .append("\n")
-                .append("Зп до перевода в ")
-                .append(departmentFrom)
-                .append(" отделе: ")
-                .append(averageSalaryDepartmentFromBeforeTransfer)
-                .append(". Зп до перевода в ")
-                .append(departmentTo)
-                .append(" отделе: ")
-                .append(averageSalaryDepartmentToBeforeTransfer)
-                .append(". \nЗп после перевода в ")
-                .append(departmentFrom)
-                .append(" отделе: ")
-                .append(averageSalaryDepartmentFromAfterTransfer)
-                .append(". Зп после перевода в ")
-                .append(departmentTo)
-                .append(" отделе: ")
-                .append(averageSalaryDepartmentToAfterTransfer)
-                .append("\n\n");
-        return result.toString();
+        return "Из отдела " +
+                departmentFrom +
+                " в отдел " +
+                departmentTo +
+                " с увеличением средней зп в обоих отделах возможен перевод следующих сотрудников: \n" +
+                employees.toString().replaceAll("[\\[\\]]", "") +
+                "\n" +
+                "Зп до перевода в " +
+                departmentFrom +
+                " отделе: " +
+                averageSalaryDepartmentFromBeforeTransfer +
+                ". Зп до перевода в " +
+                departmentTo +
+                " отделе: " +
+                averageSalaryDepartmentToBeforeTransfer +
+                ". \nЗп после перевода в " +
+                departmentFrom +
+                " отделе: " +
+                averageSalaryDepartmentFromAfterTransfer +
+                ". Зп после перевода в " +
+                departmentTo +
+                " отделе: " +
+                averageSalaryDepartmentToAfterTransfer +
+                "\n\n";
     }
 }

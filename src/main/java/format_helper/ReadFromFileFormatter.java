@@ -9,14 +9,12 @@ import java.util.regex.Pattern;
 public class ReadFromFileFormatter {
 
     public String formatInfoOutputToConsole(String departmentType, BigDecimal averageSalary, List<Employee> employeesInDepartment) {
-        StringBuilder output = new StringBuilder();
-        output.append("\nДля отдела ")
-                .append(departmentType)
-                .append(" средняя зп: ")
-                .append(averageSalary)
-                .append("\n")
-                .append(employeesInDepartment.toString().replaceAll("[\\[\\]]", ""));
-        return output.toString();
+        return "\nДля отдела " +
+                departmentType +
+                " средняя зп: " +
+                averageSalary +
+                "\n" +
+                employeesInDepartment.toString().replaceAll("[\\[\\]]", "");
     }
     public boolean checkEmployeesInfoStringFormat(String line) {
         return Pattern.matches("[A-ZА-Я][a-zа-я]*\\s[A-ZА-Я][a-zа-я]*\\s[A-ZА-Я][a-zа-я]*\\s[1-9]\\d*\\.?\\d+\\s[A-ZА-Я][A-ZА-Яa-zа-я]*", line);
